@@ -3,3 +3,15 @@ plugins {
     id 'com.android.application' version '8.3.2' apply false
     id 'com.android.library' version '8.3.2' apply false
 }
+
+ext {
+    tools = [
+            minSdk      : 11,
+            targetSdk   : 23,
+            compileSdk  : 23,
+            versionCode: 1,
+            // ベースとしている Devlight/ShadowLayout のpatchバージョンに2桁追加し
+            // そこにlisb独自のバージョンを記載
+            versionName: '1.0.201-SNAPSHOT'
+    ]
+}

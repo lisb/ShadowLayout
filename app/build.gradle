@@ -4,13 +4,14 @@ plugins {
 
 android {
     namespace "com.gigamole.shadowlayout"
-    compileSdkVersion 23
+    compileSdk rootProject.tools.compileSdk
+
     defaultConfig {
         applicationId "com.gigamole.shadowlayout"
-        minSdkVersion 11
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        minSdk rootProject.tools.minSdk
+        targetSdk rootProject.tools.targetSdk
+        versionCode rootProject.tools.versionCode
+        versionName "${rootProject.tools.versionName}"
     }
     buildTypes {
         release {
