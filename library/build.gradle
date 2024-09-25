@@ -36,10 +36,44 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    publishing {
+        publishing {
+            singleVariant("release") {
+                withSourcesJar()
+                withJavadocJar()
+            }
+        }
+    }
 }
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
     api 'androidx.appcompat:appcompat:1.7.0'
     api 'org.jsoup:jsoup:+'
+}
+
+afterEvaluate {
+    def localProps = new Properties()
+    localProps.load(rootProject.file('local.properties').newDataInputStream())
+
+    publishing {
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = "https://maven.pkg.github.com/lisb/ShadowLayout"
+                credentials {
+                    username = localProps["gpr.user"] ?: System.getenv("GPR_USER")
+                    password = localProps["gpr.key"] ?: System.getenv("GPR_KEY")
+                }
+            }
+        }
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.lisb.android'
+                artifactId = 'shadowlayout'
+                version = "${rootProject.tools.versionName}"
+            }
+        }
+    }
 }
