@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.library'
-apply plugin: "com.jfrog.bintray"
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'maven'
-
-version = "1.0.2"
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    namespace "com.gigamole.library"
+
+    compileSdk rootProject.tools.compileSdk
 
     defaultConfig {
-        minSdkVersion 11
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0.2"
+        minSdk rootProject.tools.minSdk
+        targetSdk rootProject.tools.targetSdk
+        versionCode rootProject.tools.versionCode
+        versionName "${rootProject.tools.versionName}"
     }
     buildTypes {
         release {
@@ -37,100 +36,44 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-}
-
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:23.3.0'
-    compile 'org.jsoup:jsoup:+'
-}
-
-def siteUrl = 'https://github.com/DevLight-Mobile-Agency/ShadowLayout'
-def gitUrl = 'https://github.com/DevLight-Mobile-Agency/ShadowLayout.git'
-group = "com.github.devlight.shadowlayout"
-
-install {
-    repositories.mavenInstaller {
-        // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-
-                // Add your description here
-                name 'ShadowLayout'
-                description = 'This library allows you to create a shadow effect for your layout based on your child.'
-                url siteUrl
-
-                // Set your license
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'gigamole'
-                        name 'Basil Miller'
-                        email 'gigamole53@gmail.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
+    publishing {
+        publishing {
+            singleVariant("release") {
+                withSourcesJar()
+                withJavadocJar()
             }
         }
     }
 }
 
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
+dependencies {
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api 'androidx.appcompat:appcompat:1.7.0'
+    api 'org.jsoup:jsoup:1.18.1'
 }
 
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
+afterEvaluate {
+    def localProps = new Properties()
+    localProps.load(rootProject.file('local.properties').newDataInputStream())
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-
-    configurations = ['archives']
-    pkg {
-        repo = "maven"
-        // it is the name that appears in bintray when logged
-        name = "shadowlayout"
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
-        version {
-            gpg {
-                sign = true //Determines whether to GPG sign the files. The default is false
-                passphrase = properties.getProperty("bintray.gpg.password") //Optional. The passphrase for GPG signing'
+    publishing {
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = "https://maven.pkg.github.com/lisb/ShadowLayout"
+                credentials {
+                    username = localProps["gpr.user"] ?: System.getenv("GPR_USER")
+                    password = localProps["gpr.key"] ?: System.getenv("GPR_KEY")
+                }
             }
-//            mavenCentralSync {
-//                sync = true //Optional (true by default). Determines whether to sync the version to Maven Central.
-//                user = properties.getProperty("bintray.oss.user") //OSS user token
-//                password = properties.getProperty("bintray.oss.password") //OSS user password
-//                close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
-//            }
+        }
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.lisb.android'
+                artifactId = 'shadowlayout'
+                version = "${rootProject.tools.versionName}"
+            }
         }
     }
 }
