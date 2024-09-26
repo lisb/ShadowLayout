@@ -49,7 +49,7 @@ android {
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
     api 'androidx.appcompat:appcompat:1.7.0'
-    api 'org.jsoup:jsoup:+'
+    api 'org.jsoup:jsoup:1.18.1'
 }
 
 afterEvaluate {
