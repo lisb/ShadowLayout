@@ -13,6 +13,6 @@ ext {
             versionCode: 1,
             // ベースとしている Devlight/ShadowLayout のpatchバージョンに2桁追加し
             // そこにlisb独自のバージョンを記載
-            versionName: '1.0.201-SNAPSHOT'
+            versionName: '1.0.201'
     ]
 }
